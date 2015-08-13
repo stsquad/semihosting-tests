@@ -21,8 +21,18 @@
 # A32 vs T32 vs A64
 # usermode vs system
 # gdb syscalls vs normal
-#
-# For the moment this is only testing usermode.
+
+# This makefile tests all of the instruction set and user/system cases.
+# It doesn't try to test gdb syscalls, though you can do this by
+# attaching a gdb debugger to the test program. (Note that the debugger's
+# working directory has to be the directory with the testdata.txt file
+# in it, since filenames are resolved by the debugger in that setup.)
+
+# short instructions:
+#   make run QEMU_BUILDDIR=path-to-your-builddir
+
+# TODO: compare test output against a golden reference rather
+# than just letting it dump to stdout/stderr.
 
 A32GCC := arm-linux-gnueabihf-gcc -marm
 T32GCC := arm-linux-gnueabihf-gcc -mthumb
