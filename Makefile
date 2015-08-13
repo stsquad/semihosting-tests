@@ -23,13 +23,16 @@
 # gdb syscalls vs normal
 
 # This makefile tests all of the instruction set and user/system cases.
-# It doesn't try to test gdb syscalls, though you can do this by
-# attaching a gdb debugger to the test program. (Note that the debugger's
-# working directory has to be the directory with the testdata.txt file
-# in it, since filenames are resolved by the debugger in that setup.)
 
 # short instructions:
 #   make run QEMU_BUILDDIR=path-to-your-builddir
+
+# To test gdb attached syscalls:
+#   make run-usertest-a32 QEMU_BUILDDIR=path-to-builddir GDBPORT=1234
+# then in another terminal run gdb and connect it to port 1234.
+# (Note that gdb's working directory must be the one with the testdata.txt
+# file in it, since filename resolution is done on the gdb end.)
+# Repeat for the other tests.
 
 # TODO: compare test output against a golden reference rather
 # than just letting it dump to stdout/stderr.
@@ -42,11 +45,15 @@ A32LD := arm-linux-gnueabihf-ld
 
 QEMU_BUILDDIR := ~/linaro/qemu-from-laptop/qemu/build/x86
 
-QEMU_ARM = $(QEMU_BUILDDIR)/arm-linux-user/qemu-arm
-QEMU_AARCH64 = $(QEMU_BUILDDIR)/aarch64-linux-user/qemu-aarch64
-QEMU_SYSTEM_ARM = $(QEMU_BUILDDIR)/arm-softmmu/qemu-system-arm
-QEMU_SYSTEM_AARCH64 = $(QEMU_BUILDDIR)/aarch64-softmmu/qemu-system-aarch64
+ifdef GDBPORT
+SYSGDB := -gdb tcp::$(GDBPORT)
+USRGDB := -g $(GDBPORT)
+endif
 
+QEMU_ARM = $(QEMU_BUILDDIR)/arm-linux-user/qemu-arm $(USRGDB)
+QEMU_AARCH64 = $(QEMU_BUILDDIR)/aarch64-linux-user/qemu-aarch64 $(USRGDB)
+QEMU_SYSTEM_ARM = $(QEMU_BUILDDIR)/arm-softmmu/qemu-system-arm $(SYSGDB)
+QEMU_SYSTEM_AARCH64 = $(QEMU_BUILDDIR)/aarch64-softmmu/qemu-system-aarch64 $(SYSGDB)
 
 all: usertest-a32 usertest-a64 usertest-t32 \
 	systest-a32.axf systest-t32.axf systest-a64.axf
