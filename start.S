@@ -27,11 +27,15 @@
         .globl start
 start:
         # We assume uniprocessor.
-        # TODO: enable floating point??
 
 #ifndef __aarch64__
         # Set up a stack
         ldr sp, =stacktop
+
+        # Turn on the FPU
+        mov r0, 0xf00000
+        mcr p15, 0, r0, c1, c0, 2
+
         bl main
         bl semi_exit
         # not reached
@@ -42,6 +46,11 @@ start:
         # Set up a stack
         ldr x0, =stacktop
         mov sp, x0
+
+        # Turn on the FPU
+        mov x0, 0x300000
+        msr CPACR_EL1, x0
+
         bl main
         bl semi_exit
         # not reached
