@@ -30,11 +30,20 @@ A64GCC := aarch64-linux-gnu-gcc
 
 A32LD := arm-linux-gnueabihf-ld
 
-all: usertest-a32 usertest-a64 usertest-t32
+QEMU_BUILDDIR := ~/linaro/qemu-from-laptop/qemu/build/x86
 
-usertest-srcs = usertest.c semihosting.c semicall.S
+QEMU_ARM = $(QEMU_BUILDDIR)/arm-linux-user/qemu-arm
+QEMU_AARCH64 = $(QEMU_BUILDDIR)/aarch64-linux-user/qemu-aarch64
+QEMU_SYSTEM_ARM = $(QEMU_BUILDDIR)/arm-softmmu/qemu-system-arm
+QEMU_SYSTEM_AARCH64 = $(QEMU_BUILDDIR)/aarch64-softmmu/qemu-system-aarch64
 
-systest-srcs = start.S string.c printf/printf.c $(usertest-srcs)
+
+all: usertest-a32 usertest-a64 usertest-t32 \
+	systest-a32.axf systest-t32.axf systest-a64.axf
+
+usertest-srcs = usertest.c semihosting.c semicall.S printf/printf.c
+
+systest-srcs = start.S string.c $(usertest-srcs)
 
 usertest-a32: $(usertest-srcs)
 	$(A32GCC) --static -o $@ $^
@@ -49,8 +58,18 @@ systest-a32.axf: $(systest-srcs)
 	$(A32GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
 
 systest-t32.axf: $(systest-srcs)
-	$(T32GCC) -nostdlib -o $@ $^ -Xlinker --script=baremetal.lds
+	$(T32GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
 
 systest-a64.axf: $(systest-srcs)
-	$(A64GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
+	$(A64GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal-a64.lds
 
+run-usertest-a32: usertest-a32
+	$(QEMU_ARM) usertest-a32
+
+run-usertest-t32: usertest-t32
+	$(QEMU_ARM) usertest-t32
+
+run-usertest-a64: usertest-a64
+	$(QEMU_AARCH64) usertest-a64
+
+run: run-usertest-a32 run-usertest-t32 run-usertest-a64
