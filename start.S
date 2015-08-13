@@ -29,6 +29,7 @@ start:
         # We assume uniprocessor.
         # TODO: enable floating point??
 
+#ifndef __aarch64__
         # Set up a stack
         ldr sp, =stacktop
         bl main
@@ -36,3 +37,14 @@ start:
         # not reached
 1:      b 1b
 
+#else
+
+        # Set up a stack
+        ldr x0, =stacktop
+        mov sp, x0
+        bl main
+        bl semi_exit
+        # not reached
+1:      b 1b
+
+#endif
