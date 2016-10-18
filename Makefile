@@ -19,6 +19,7 @@
 #
 # We have several orthogonal cases we'd like to test:
 # A32 vs T32 vs A64
+# old syscall vs new HLT (for A32 and T32)
 # usermode vs system
 # gdb syscalls vs normal
 
@@ -68,6 +69,12 @@ usertest-a32: $(usertest-srcs)
 usertest-t32: $(usertest-srcs)
 	$(T32GCC) --static -o $@ $^
 
+usertest-a32-hlt: $(usertest-srcs)
+	$(A32GCC) -DUSE_HLT --static -o $@ $^
+
+usertest-t32-hlt: $(usertest-srcs)
+	$(T32GCC) -DUSE_HLT --static -o $@ $^
+
 usertest-a64: $(usertest-srcs)
 	$(A64GCC) --static -o $@ $^
 
@@ -76,6 +83,12 @@ systest-a32.axf: $(systest-srcs)
 
 systest-t32.axf: $(systest-srcs)
 	$(T32GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
+
+systest-a32-hlt.axf: $(systest-srcs)
+	$(A32GCC) -DUSE_HLT -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
+
+systest-t32-hlt.axf: $(systest-srcs)
+	$(T32GCC) -DUSE_HLT -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
 
 systest-a64.axf: $(systest-srcs)
 	$(A64GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal-a64.lds
@@ -86,6 +99,12 @@ run-usertest-a32: usertest-a32
 run-usertest-t32: usertest-t32
 	$(QEMU_ARM) usertest-t32
 
+run-usertest-a32-hlt: usertest-a32-hlt
+	$(QEMU_ARM) usertest-a32-hlt
+
+run-usertest-t32-hlt: usertest-t32-hlt
+	$(QEMU_ARM) usertest-t32-hlt
+
 run-usertest-a64: usertest-a64
 	$(QEMU_AARCH64) usertest-a64
 
@@ -95,9 +114,17 @@ run-systest-a32: systest-a32.axf
 run-systest-t32: systest-t32.axf
 	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
 
+run-systest-a32-hlt: systest-a32-hlt.axf
+	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
+
+run-systest-t32-hlt: systest-t32-hlt.axf
+	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
+
 run-systest-a64: systest-a64.axf
 	$(QEMU_SYSTEM_AARCH64) -M virt --display none --semihosting \
 		-cpu cortex-a57 -kernel $^
 
 run: run-usertest-a32 run-usertest-t32 run-usertest-a64 \
-	run-systest-a32 run-systest-t32 run-systest-a64
+	run-systest-a32 run-systest-t32 run-systest-a64 \
+	run-usertest-a32-hlt run-usertest-t32-hlt \
+	run-systest-a32-hlt run-systest-t32-hlt

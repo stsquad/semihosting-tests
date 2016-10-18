@@ -35,11 +35,30 @@ __semi_call:
         ret
 #else
 
+#if defined(USE_HLT)
+        /* semihosting 2.0 hlt trap. We have to use literals
+         * here because the assembler refuses to assemble hlt
+         * for ARMv7 processors (but it is a semihosting trap
+         * regardless)
+         */
+
 #if defined(__thumb__)
+        .short 0xbabc /* hlt 0x3c */
+#else
+        .word 0xe10f0070 /* hlt 0xf000 */
+#endif
+
+#else
+        /* traditional svc */
+#if defined(__thumb__)
+        /* NB: assumes not M-profile (which is BKPT) */
         svc 0xab
 #else
         svc 0x123456
 #endif
+
+#endif
+
         bx lr
 
 #endif
