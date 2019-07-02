@@ -44,6 +44,9 @@ A64GCC := aarch64-linux-gnu-gcc
 
 A32LD := arm-linux-gnueabihf-ld
 
+A32LINKOPTS := -nostdlib -lgcc -Xlinker --script=baremetal.lds -Xlinker --build-id=none
+A64LINKOPTS := -nostdlib -lgcc -Xlinker --script=baremetal-a64.lds -Xlinker --build-id=none
+
 QEMU_BUILDDIR := ~/linaro/qemu-from-laptop/qemu/build/x86
 
 ifdef GDBPORT
@@ -79,19 +82,19 @@ usertest-a64: $(usertest-srcs)
 	$(A64GCC) --static -o $@ $^
 
 systest-a32.axf: $(systest-srcs)
-	$(A32GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
+	$(A32GCC) -o $@ $^ $(A32LINKOPTS)
 
 systest-t32.axf: $(systest-srcs)
-	$(T32GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
+	$(T32GCC) -o $@ $^ $(A32LINKOPTS)
 
 systest-a32-hlt.axf: $(systest-srcs)
-	$(A32GCC) -DUSE_HLT -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
+	$(A32GCC) -DUSE_HLT -o $@ $^ $(A32LINKOPTS)
 
 systest-t32-hlt.axf: $(systest-srcs)
-	$(T32GCC) -DUSE_HLT -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal.lds
+	$(T32GCC) -DUSE_HLT -o $@ $^ $(A32LINKOPTS)
 
 systest-a64.axf: $(systest-srcs)
-	$(A64GCC) -nostdlib -o $@ $^ -lgcc -Xlinker --script=baremetal-a64.lds
+	$(A64GCC) -nostdlib -o $@ $^ $(A64LINKOPTS)
 
 run-usertest-a32: usertest-a32
 	$(QEMU_ARM) usertest-a32
