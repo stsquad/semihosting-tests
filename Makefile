@@ -40,12 +40,15 @@
 
 A32GCC := arm-linux-gnueabihf-gcc -marm
 T32GCC := arm-linux-gnueabihf-gcc -mthumb
+V7MGCC := arm-none-eabi-gcc -mcpu=cortex-m0 -mfloat-abi=soft
 A64GCC := aarch64-linux-gnu-gcc
 
 A32LD := arm-linux-gnueabihf-ld
 
 A32LINKOPTS := -nostdlib -lgcc -Xlinker --script=baremetal.lds -Xlinker --build-id=none
 A64LINKOPTS := -nostdlib -lgcc -Xlinker --script=baremetal-a64.lds -Xlinker --build-id=none
+
+AV7MLINKOPTS := -nostdlib -lgcc -Xlinker --script=microbit.lds -Xlinker --build-id=none
 
 QEMU_BUILDDIR := ~/linaro/qemu-from-laptop/qemu/build/x86
 
@@ -60,11 +63,15 @@ QEMU_SYSTEM_ARM = $(QEMU_BUILDDIR)/arm-softmmu/qemu-system-arm $(SYSGDB)
 QEMU_SYSTEM_AARCH64 = $(QEMU_BUILDDIR)/aarch64-softmmu/qemu-system-aarch64 $(SYSGDB)
 
 all: usertest-a32 usertest-a64 usertest-t32 \
-	systest-a32.axf systest-t32.axf systest-a64.axf
+	systest-a32.axf systest-t32.axf \
+	systest-a32-hlt.axf systest-t32-hlt.axf \
+	systest-t32-bkpt.axf \
+	systest-a64.axf
 
 usertest-srcs = usertest.c semihosting.c semicall.S printf/printf.c
 
 systest-srcs = start.S string.c $(usertest-srcs)
+microbit-systest-srcs = start-microbit.S string.c $(usertest-srcs)
 
 usertest-a32: $(usertest-srcs)
 	$(A32GCC) --static -o $@ $^
@@ -92,6 +99,9 @@ systest-a32-hlt.axf: $(systest-srcs)
 
 systest-t32-hlt.axf: $(systest-srcs)
 	$(T32GCC) -DUSE_HLT -o $@ $^ $(A32LINKOPTS)
+
+systest-t32-bkpt.axf: $(microbit-systest-srcs)
+	$(V7MGCC) -DUSE_BKPT -o $@ $^ $(AV7MLINKOPTS)
 
 systest-a64.axf: $(systest-srcs)
 	$(A64GCC) -nostdlib -o $@ $^ $(A64LINKOPTS)
@@ -123,6 +133,9 @@ run-systest-a32-hlt: systest-a32-hlt.axf
 run-systest-t32-hlt: systest-t32-hlt.axf
 	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
 
+run-systest-t32-bkpt: systest-t32-bkpt.axf
+	$(QEMU_SYSTEM_ARM) -M microbit --display none --semihosting -kernel $^
+
 run-systest-a64: systest-a64.axf
 	$(QEMU_SYSTEM_AARCH64) -M virt --display none --semihosting \
 		-cpu cortex-a57 -kernel $^
@@ -130,4 +143,5 @@ run-systest-a64: systest-a64.axf
 run: run-usertest-a32 run-usertest-t32 run-usertest-a64 \
 	run-systest-a32 run-systest-t32 run-systest-a64 \
 	run-usertest-a32-hlt run-usertest-t32-hlt \
-	run-systest-a32-hlt run-systest-t32-hlt
+	run-systest-a32-hlt run-systest-t32-hlt \
+	run-systest-t32-bkpt
