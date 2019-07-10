@@ -60,7 +60,9 @@ QEMU_SYSTEM_ARM = $(QEMU_BUILDDIR)/arm-softmmu/qemu-system-arm $(SYSGDB)
 QEMU_SYSTEM_AARCH64 = $(QEMU_BUILDDIR)/aarch64-softmmu/qemu-system-aarch64 $(SYSGDB)
 
 all: usertest-a32 usertest-a64 usertest-t32 \
-	systest-a32.axf systest-t32.axf systest-a64.axf
+	systest-a32.axf systest-t32.axf \
+	systest-a32-hlt.axf systest-t32-hlt.axf \
+	systest-a64.axf
 
 usertest-srcs = usertest.c semihosting.c semicall.S printf/printf.c
 
