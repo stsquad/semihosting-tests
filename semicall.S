@@ -29,6 +29,7 @@
 #endif
 
         .globl __semi_call
+        .type __semi_call, function
 __semi_call:
 #if defined(__aarch64__)
         hlt 0xf000
@@ -51,8 +52,13 @@ __semi_call:
 #else
         /* traditional svc */
 #if defined(__thumb__)
-        /* NB: assumes not M-profile (which is BKPT) */
+#if defined(USE_BKPT)
+        /* M-profile T32 */
+        bkpt 0xab
+#else
+        /* A+R Profile T32 */
         svc 0xab
+#endif
 #else
         svc 0x123456
 #endif
