@@ -1,5 +1,7 @@
 /*
- * usertest.c -- top level test file for usermode tests
+ * usertest.c -- top level test file for usermode tests.
+ *
+ * System tests also call this main after start[-microbit].S
  *
  * Copyright (c) 2015 Linaro Limited
  * All rights reserved.
