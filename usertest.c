@@ -37,31 +37,44 @@ void semi_putc(void *p, char c)
     semi_writec(c);
 }
 
+const char file[] = "Small file of text data for test.\n";
+
 int main(void)
 {
     void *bufp;
-    unsigned int sz;
+    unsigned int sz, i;
 
     init_printf(NULL, semi_putc);
 
-    semi_write0("hello world via semi_write0\n");
+    /* If writing output succeeds it is in itself a test */
+    semi_write0("PASS sending output via semi_write0\n");
 
-    semi_write0("open file test\n");
+    /* Open file test: this checks open/flen/read/close */
 
     bufp = filebuf;
     sz = sizeof(filebuf);
     if (semi_load_file(&bufp, &sz, "testdata.txt") < 0) {
-        semi_write0("semi_load_file failed!\n");
+        semi_write0("FAIL semi_load_file failed!\n");
         return 1;
     }
 
-    filebuf[sizeof(filebuf) - 1] = 0;
+    /* note that file[] has a trailing \0 which isn't in the filebuf */
+    if (sz == sizeof(file) - 1) {
+        semi_write0("PASS test file size matches expected\n");
+    } else {
+        semi_write0("FAIL test file not expected size\n");
+        return 1;
+    }
 
-    printf("read %d bytes from file\n", sz);
-    semi_write0("buffer contents:\n");
-    semi_write0(filebuf);
-    semi_write0("tests complete, exiting via semihosting\n");
+    for (i = 0; i < sz; i++) {
+        if (filebuf[i] != file[i]) {
+            semi_write0("FAIL test file contents don't match expected data\n");
+            return 1;
+        }
+    }
+    semi_write0("PASS test file contents match\n");
 
+    semi_write0("ALL TESTS PASSED\n");
     semi_exit(0);
     /* not reached */
 }
