@@ -19,6 +19,8 @@
 #ifndef SEMIHOSTING_H
 #define SEMIHOSTING_H
 
+#include <inttypes.h>
+
 #define SYS_OPEN	1
 #define OPEN_RDONLY	1
 #define SYS_CLOSE	2
@@ -26,6 +28,7 @@
 #define SYS_WRITE0	4
 #define SYS_READ	6
 #define SYS_ISTTY	9
+#define SYS_SEEK	0x0A
 #define SYS_FLEN	0x0C
 #define SYS_GET_CMDLINE	0x15
 #define SYS_REPORTEXC	0x18
@@ -42,6 +45,7 @@ void semi_writec(char c);
 int semi_read(int fd, char *buffer, int length);
 int semi_flen(int fd);
 int semi_istty(int fd);
+int semi_seek(int fd, intptr_t pos);
 int semi_get_cmdline(char *buffer, int size, int *length);
 int semi_reportexc(int reason, int subcode);
 void semi_fatal(char const *message);

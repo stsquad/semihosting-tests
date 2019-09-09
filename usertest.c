@@ -95,6 +95,68 @@ static int test_istty(void)
     return 0;
 }
 
+/*
+ * Caution: don't pass a 'pos' that would seek off the end of the file or
+ * so close to the end that the read fails. We check for this, but it's
+ * a test-coding bug.
+ */
+#define CHUNK_SZ 12
+static int test_one_seek(int fd, int pos)
+{
+    int i;
+
+    if ((pos + CHUNK_SZ) >= sizeof(file)) {
+        semi_write0("FAIL test bug: test_one_seek called with pos too large\n");
+        return 1;
+    }
+
+    if (semi_seek(fd, pos) != 0) {
+        semi_write0("FAIL could not seek to byte position\n");
+        return 1;
+    }
+
+    if (semi_read(fd, filebuf, CHUNK_SZ)) {
+        semi_write0("FAIL could not read from seeked-to position\n");
+        return 1;
+    }
+
+    for (i = 0; i < CHUNK_SZ; i++) {
+        if (filebuf[i] != file[i + pos]) {
+            semi_write0("FAIL mismatch in data read from seeked-to position\n");
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int test_seek(void)
+{
+    int fd;
+    int fail = 0;
+
+    fd = semi_open(TESTDATA_FILE, OPEN_RDONLY);
+    if (fd == -1) {
+        semi_write0("FAIL could not open test data file\n");
+        return 1;
+    }
+
+    /* Seek forwards */
+    if (test_one_seek(fd, 6)) {
+        return 1;
+    }
+    semi_write0("PASS seek to position 6 and read data\n");
+
+    /* and then backwards */
+    if (test_one_seek(fd, 2)) {
+        return 1;
+    }
+    semi_write0("PASS seek to position 2 and read data\n");
+
+    semi_close(fd);
+    return 0;
+}
+
 int main(void)
 {
     void *bufp;
@@ -131,6 +193,10 @@ int main(void)
     semi_write0("PASS test file contents match\n");
 
     if (test_istty()) {
+        return 1;
+    }
+
+    if (test_seek()) {
         return 1;
     }
 

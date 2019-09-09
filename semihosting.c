@@ -90,6 +90,18 @@ int semi_istty(int fd)
     return __semi_call(SYS_ISTTY, &args);
 }
 
+int semi_seek(int fd, intptr_t pos)
+{
+    struct {
+        intptr_t fd;
+        intptr_t pos;
+    } args;
+
+    args.fd = fd;
+    args.pos = pos;
+    return __semi_call(SYS_SEEK, &args);
+}
+
 int semi_get_cmdline(char *buffer, int size, int *length)
 {
     int result;
