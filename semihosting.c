@@ -151,6 +151,11 @@ int semi_load_file(void **dest, unsigned *size, char const *filename)
         goto out;
     }
 
+    if (*size < filesize) {
+        semi_write0("File too big for buffer: ");
+        goto out;
+    }
+
     if(semi_read(fd, *dest, filesize)) {
         semi_write0("Could not read: ");
         goto out;
@@ -166,9 +171,8 @@ out:
     if(result) {	/* print context for the error message */
         semi_write0(filename);
         semi_write0("\n");
-    } else
-        if(size)
-            *size = filesize;
-
+    } else {
+        *size = filesize;
+    }
     return result;
 }

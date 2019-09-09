@@ -44,7 +44,13 @@ int semi_get_cmdline(char *buffer, int size, int *length);
 int semi_reportexc(int reason, int subcode);
 void semi_fatal(char const *message);
 void semi_exit(int subcode);
-/* semi_load_file: *dest is advanced to point to the end of the loaded data */
+/*
+ * semi_load_file:
+ * On entry *dest should be the buffer to write the data to, and
+ * *size should be the size of that buffer.
+ * On success, return 0, *size is updated to the size of the data read,
+ * and *dest is advanced to point to the end of the loaded data
+ */
 int semi_load_file(void **dest, unsigned *size, char const *filename);
 
 #endif /* ! __ASSEMBLER__ */

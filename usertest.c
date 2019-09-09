@@ -48,14 +48,10 @@ int main(void)
 
     semi_write0("open file test\n");
 
-    /* caution -- this will not do a length check on the buffer! */
     bufp = filebuf;
+    sz = sizeof(filebuf);
     if (semi_load_file(&bufp, &sz, "testdata.txt") < 0) {
         semi_write0("semi_load_file failed!\n");
-        return 1;
-    }
-    if (sz >= sizeof(filebuf)) {
-        semi_write0("test file too big for buffer\n");
         return 1;
     }
 
