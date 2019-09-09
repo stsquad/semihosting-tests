@@ -70,6 +70,21 @@ int semi_read(int fd, char *buffer, int length)
     return __semi_call(SYS_READ, &args);
 }
 
+int semi_write(int fd, const char *buffer, int length)
+{
+    struct {
+        intptr_t fd;
+        const char *buffer;
+        intptr_t length;
+    } args;
+
+    args.fd = fd;
+    args.buffer = buffer;
+    args.length = length;
+
+    return __semi_call(SYS_WRITE, &args);
+}
+
 int semi_flen(int fd)
 {
     struct {
@@ -100,6 +115,18 @@ int semi_seek(int fd, intptr_t pos)
     args.fd = fd;
     args.pos = pos;
     return __semi_call(SYS_SEEK, &args);
+}
+
+int semi_remove(const char *filename)
+{
+    struct {
+        const char *filename;
+        intptr_t flen;
+    } args;
+
+    args.filename = filename;
+    args.flen = strlen(filename);
+    return __semi_call(SYS_REMOVE, &args);
 }
 
 int semi_get_cmdline(char *buffer, int size, int *length)

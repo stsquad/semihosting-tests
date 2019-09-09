@@ -40,6 +40,9 @@ void semi_putc(void *p, char c)
 #define TESTDATA_FILE "testdata.txt"
 const char file[] = "Small file of text data for test.\n";
 
+#define TESTWRITE_FILE "tempdata.txt"
+const char writedata[] = "Data to write to temporary file.\n";
+
 static int test_istty(void)
 {
     int fd;
@@ -157,6 +160,54 @@ static int test_seek(void)
     return 0;
 }
 
+static int test_write(void)
+{
+    int fd, i;
+    void *bufp;
+    unsigned int sz;
+
+    fd = semi_open(TESTWRITE_FILE, OPEN_WRONLY);
+    if (fd == -1) {
+        semi_write0("FAIL could not open temp data file for write\n");
+        return 1;
+    }
+
+    /* Write some data */
+    if (semi_write(fd, writedata, sizeof(writedata) - 1) != 0) {
+        semi_write0("FAIL could not write data\n");
+        return 1;
+    }
+
+    semi_close(fd);
+
+    /* Read it back and check for a match */
+    bufp = filebuf;
+    sz = sizeof(filebuf);
+    if (semi_load_file(&bufp, &sz, TESTWRITE_FILE) < 0) {
+        semi_write0("FAIL could not read back written data\n");
+        return 1;
+    }
+
+    if (sz == sizeof(writedata) - 1) {
+        semi_write0("PASS written data file size matches expected\n");
+    } else {
+        semi_write0("FAIL written data file size incorrect\n");
+        return 1;
+    }
+
+    for (i = 0; i < sz; i++) {
+        if (filebuf[i] != writedata[i]) {
+            semi_write0("FAIL written file contents don't match expected\n");
+            return 1;
+        }
+    }
+    semi_write0("PASS written data file contents match\n");
+
+    semi_remove(TESTWRITE_FILE);
+
+    return 0;
+}
+
 int main(void)
 {
     void *bufp;
@@ -197,6 +248,10 @@ int main(void)
     }
 
     if (test_seek()) {
+        return 1;
+    }
+
+    if (test_write()) {
         return 1;
     }
 

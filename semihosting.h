@@ -23,13 +23,16 @@
 
 #define SYS_OPEN	1
 #define OPEN_RDONLY	1
+#define OPEN_WRONLY	4
 #define SYS_CLOSE	2
 #define SYS_WRITEC	3
 #define SYS_WRITE0	4
+#define SYS_WRITE	5
 #define SYS_READ	6
 #define SYS_ISTTY	9
 #define SYS_SEEK	0x0A
 #define SYS_FLEN	0x0C
+#define SYS_REMOVE	0x0E
 #define SYS_GET_CMDLINE	0x15
 #define SYS_REPORTEXC	0x18
 #define REPORTEXC_REASON_APP_EXIT 0x20026
@@ -43,9 +46,11 @@ int semi_close(int fd);
 int semi_write0(char const *string);
 void semi_writec(char c);
 int semi_read(int fd, char *buffer, int length);
+int semi_write(int fd, const char *buffer, int length);
 int semi_flen(int fd);
 int semi_istty(int fd);
 int semi_seek(int fd, intptr_t pos);
+int semi_remove(const char *filename);
 int semi_get_cmdline(char *buffer, int size, int *length);
 int semi_reportexc(int reason, int subcode);
 void semi_fatal(char const *message);
