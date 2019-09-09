@@ -40,6 +40,61 @@ void semi_putc(void *p, char c)
 #define TESTDATA_FILE "testdata.txt"
 const char file[] = "Small file of text data for test.\n";
 
+static int test_istty(void)
+{
+    int fd;
+    int fail = 0;
+
+    fd = semi_open(TESTDATA_FILE, OPEN_RDONLY);
+    if (fd == -1) {
+        semi_write0("FAIL could not open test data file\n");
+        return 1;
+    }
+
+    switch (semi_istty(fd)) {
+    case 0:
+        semi_write0("PASS istty(file) returned 0\n");
+        break;
+    case 1:
+        semi_write0("FAIL istty(file) returned 1\n");
+        fail++;
+        break;
+    default:
+        semi_write0("FAIL istty(file) failed\n");
+        fail++;
+        break;
+    }
+    semi_close(fd);
+    if (fail) {
+        return 1;
+    }
+
+    fd = semi_open(":tt", OPEN_RDONLY);
+    if (fd == -1) {
+        semi_write0("FAIL could not open stdin\n");
+        return 1;
+    }
+
+    switch (semi_istty(fd)) {
+    case 0:
+        semi_write0("FAIL istty(stdin) returned 0\n");
+        fail++;
+        break;
+    case 1:
+        semi_write0("PASS istty(stdin) returned 1\n");
+        break;
+    default:
+        semi_write0("FAIL istty(stdin) failed\n");
+        fail++;
+        break;
+    }
+    semi_close(fd);
+    if (fail) {
+        return 1;
+    }
+    return 0;
+}
+
 int main(void)
 {
     void *bufp;
@@ -74,6 +129,10 @@ int main(void)
         }
     }
     semi_write0("PASS test file contents match\n");
+
+    if (test_istty()) {
+        return 1;
+    }
 
     semi_write0("ALL TESTS PASSED\n");
     semi_exit(0);

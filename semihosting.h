@@ -25,6 +25,7 @@
 #define SYS_WRITEC	3
 #define SYS_WRITE0	4
 #define SYS_READ	6
+#define SYS_ISTTY	9
 #define SYS_FLEN	0x0C
 #define SYS_GET_CMDLINE	0x15
 #define SYS_REPORTEXC	0x18
@@ -40,6 +41,7 @@ int semi_write0(char const *string);
 void semi_writec(char c);
 int semi_read(int fd, char *buffer, int length);
 int semi_flen(int fd);
+int semi_istty(int fd);
 int semi_get_cmdline(char *buffer, int size, int *length);
 int semi_reportexc(int reason, int subcode);
 void semi_fatal(char const *message);

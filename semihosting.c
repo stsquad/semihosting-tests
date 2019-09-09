@@ -80,6 +80,16 @@ int semi_flen(int fd)
     return __semi_call(SYS_FLEN, &args);
 }
 
+int semi_istty(int fd)
+{
+    struct {
+        intptr_t fd;
+    } args;
+
+    args.fd = fd;
+    return __semi_call(SYS_ISTTY, &args);
+}
+
 int semi_get_cmdline(char *buffer, int size, int *length)
 {
     int result;
