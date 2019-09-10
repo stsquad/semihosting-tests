@@ -176,6 +176,21 @@ void semi_exit(int subcode)
     while(1); /* should not be reached */
 }
 
+void semi_exit_extended(int subcode)
+{
+    /* If present, this always allows a subcode to be reported. */
+    struct {
+        intptr_t reason;
+        intptr_t subcode;
+    } args;
+
+    args.reason = REPORTEXC_REASON_APP_EXIT;
+    args.subcode = subcode;
+    __semi_call(SYS_EXIT_EXTENDED, &args);
+
+    while(1); /* should not be reached */
+}
+
 void semi_fatal(char const *message)
 {
     semi_write0(message);

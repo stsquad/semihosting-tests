@@ -43,6 +43,9 @@ const char file[] = "Small file of text data for test.\n";
 #define TESTWRITE_FILE "tempdata.txt"
 const char writedata[] = "Data to write to temporary file.\n";
 
+int has_exit_extended;
+int has_stdout_stderr;
+
 static int test_istty(void)
 {
     int fd;
@@ -245,6 +248,20 @@ static int test_feature_detect(void)
 
     semi_write0("PASS semihosting features file read successfully\n");
 
+    /* Capture the feature flags we care about here for later tests */
+    if (filebuf[4] & SH_EXT_EXIT_EXTENDED) {
+        semi_write0("INFO implementation supports EXIT_EXTENDED\n");
+        has_exit_extended++;
+    }
+    if (filebuf[4] & SH_EXT_STDOUT_STDERR) {
+        semi_write0("INFO implementation supports STDOUT_STDERR\n");
+        has_stdout_stderr++;
+    }
+    if (filebuf[4] & ~(SH_EXT_EXIT_EXTENDED | SH_EXT_STDOUT_STDERR)) {
+        semi_write0("INFO implementation supports extensions "
+                    "this test doesn't know about\n");
+    }
+
     if (semi_istty(fd)) {
         semi_write0("FAIL semihosting features file is a TTY?\n");
     } else {
@@ -350,6 +367,11 @@ int main(void)
     }
 
     semi_write0("ALL TESTS PASSED\n");
+
+    /* If we have EXIT_EXTENDED then use it */
+    if (has_exit_extended) {
+        semi_exit_extended(0);
+    }
     semi_exit(0);
     /* not reached */
 }

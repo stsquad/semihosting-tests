@@ -36,6 +36,7 @@
 #define SYS_GET_CMDLINE	0x15
 #define SYS_REPORTEXC	0x18
 #define REPORTEXC_REASON_APP_EXIT 0x20026
+#define SYS_EXIT_EXTENDED 0x20
 #define SEMIHOSTING_SVC	0x123456	/* SVC comment field for semihosting */
 
 #define FEATURE_DETECT_FILE ":semihosting-features"
@@ -43,6 +44,8 @@
 #define SHFB_MAGIC_1 0x48
 #define SHFB_MAGIC_2 0x46
 #define SHFB_MAGIC_3 0x42
+#define SH_EXT_EXIT_EXTENDED (1 << 0)
+#define SH_EXT_STDOUT_STDERR (1 << 1)
 
 #ifndef __ASSEMBLER__
 
@@ -61,6 +64,7 @@ int semi_get_cmdline(char *buffer, int size, int *length);
 int semi_reportexc(int reason, int subcode);
 void semi_fatal(char const *message);
 void semi_exit(int subcode);
+void semi_exit_extended(int subcode);
 /*
  * semi_load_file:
  * On entry *dest should be the buffer to write the data to, and
