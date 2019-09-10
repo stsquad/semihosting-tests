@@ -37,6 +37,7 @@ void semi_putc(void *p, char c)
     semi_writec(c);
 }
 
+#define TESTDATA_FILE "testdata.txt"
 const char file[] = "Small file of text data for test.\n";
 
 int main(void)
@@ -53,7 +54,7 @@ int main(void)
 
     bufp = filebuf;
     sz = sizeof(filebuf);
-    if (semi_load_file(&bufp, &sz, "testdata.txt") < 0) {
+    if (semi_load_file(&bufp, &sz, TESTDATA_FILE) < 0) {
         semi_write0("FAIL semi_load_file failed!\n");
         return 1;
     }
