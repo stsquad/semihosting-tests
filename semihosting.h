@@ -38,6 +38,12 @@
 #define REPORTEXC_REASON_APP_EXIT 0x20026
 #define SEMIHOSTING_SVC	0x123456	/* SVC comment field for semihosting */
 
+#define FEATURE_DETECT_FILE ":semihosting-features"
+#define SHFB_MAGIC_0 0x53
+#define SHFB_MAGIC_1 0x48
+#define SHFB_MAGIC_2 0x46
+#define SHFB_MAGIC_3 0x42
+
 #ifndef __ASSEMBLER__
 
 int __semi_call(int id, ...);

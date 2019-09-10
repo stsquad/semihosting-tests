@@ -208,6 +208,96 @@ static int test_write(void)
     return 0;
 }
 
+static int test_feature_detect(void)
+{
+    int fd, fd2, remaining, len;
+
+    fd = semi_open(FEATURE_DETECT_FILE, OPEN_RDONLY);
+    if (fd == -1) {
+        semi_write0("SKIP implementation does not support feature-detection\n");
+        return 0;
+    }
+
+    /*
+     * Strictly as a semihosting client we should assume that if the
+     * magic file has less than 5 bytes or the wrong magic numbers then
+     * this indicates an implementation without feature-detection.
+     * However it's more useful for a test program to insist that they
+     * are correct.
+     */
+    len = semi_flen(fd);
+    if (len < 5) {
+        semi_write0("FAIL semihosting features file too short\n");
+        return 1;
+    }
+
+    /* Try an overlong read and check we get back something sensible */
+    remaining = semi_read(fd, filebuf, CHUNK_SZ);
+    if (remaining + len != CHUNK_SZ) {
+        semi_write0("FAIL read from semihosting features file wrong size\n");
+        return 1;
+    }
+    if (filebuf[0] != SHFB_MAGIC_0 || filebuf[1] != SHFB_MAGIC_1 ||
+        filebuf[2] != SHFB_MAGIC_2 || filebuf[3] != SHFB_MAGIC_3) {
+        semi_write0("FAIL semihosting features file has bad magic\n");
+        return 1;
+    }
+
+    semi_write0("PASS semihosting features file read successfully\n");
+
+    if (semi_istty(fd)) {
+        semi_write0("FAIL semihosting features file is a TTY?\n");
+    } else {
+        semi_write0("PASS semihosting features file is not a TTY\n");
+    }
+
+    /*
+     * Check we can open multiple fds on the magic file and that
+     * they seek independently.
+     */
+    fd2 = semi_open(FEATURE_DETECT_FILE, OPEN_RDONLY);
+    if (fd2 == -1) {
+        semi_write0("FAIL could not open feature-detection file twice\n");
+        return 1;
+    }
+
+    if (semi_seek(fd, 3) != 0) {
+        semi_write0("FAIL could not seek feature-detection file\n");
+        return 1;
+    }
+
+    if (semi_seek(fd2, 1) != 0) {
+        semi_write0("FAIL could not seek feature-detection file\n");
+        return 1;
+    }
+
+    if (semi_read(fd, filebuf, 1) != 0) {
+        semi_write0("FAIL could not read from feature-detection file\n");
+        return 1;
+    }
+
+    if (filebuf[0] != SHFB_MAGIC_3) {
+        semi_write0("FAIL feature-detection file had wrong data after seek\n");
+        return 1;
+    }
+
+    if (semi_read(fd2, filebuf, 1) != 0) {
+        semi_write0("FAIL could not read from feature-detection file\n");
+        return 1;
+    }
+
+    if (filebuf[0] != SHFB_MAGIC_1) {
+        semi_write0("FAIL feature-detection file had wrong data after seek\n");
+        return 1;
+    }
+
+    semi_write0("PASS feature-detect files seek independently\n");
+
+    semi_close(fd);
+    semi_close(fd2);
+    return 0;
+}
+
 int main(void)
 {
     void *bufp;
@@ -252,6 +342,10 @@ int main(void)
     }
 
     if (test_write()) {
+        return 1;
+    }
+
+    if (test_feature_detect()) {
         return 1;
     }
 
