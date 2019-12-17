@@ -315,6 +315,31 @@ static int test_feature_detect(void)
     return 0;
 }
 
+static char intro_banner[] = "PASS sending output via semi_write0\n";
+
+/*
+ * As the test might not be being run with a loop-backed
+ */
+static int test_console_readc(void)
+{
+    #ifdef __WITH_CONSOLE__
+    char *p = intro_banner;
+    while(*p) {
+        int c = semi_readc();
+        if (c == 0) {
+            semi_write0("SKIP got zero from console\n");
+            return 0;
+        }
+        if (*p++ != c) {
+            semi_write0("FAIL got wrong response from console!\n");
+            return 1;
+        }
+    }
+    semi_write0("PASS saw intro banner echoed back\n");
+    #endif
+    return 0;
+}
+
 int main(void)
 {
     void *bufp;
@@ -323,7 +348,12 @@ int main(void)
     init_printf(NULL, semi_putc);
 
     /* If writing output succeeds it is in itself a test */
-    semi_write0("PASS sending output via semi_write0\n");
+    semi_write0(intro_banner);
+
+    /* Check console input is working */
+    if (test_console_readc()) {
+        return 1;
+    }
 
     /* Open file test: this checks open/flen/read/close */
 

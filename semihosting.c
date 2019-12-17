@@ -70,6 +70,11 @@ int semi_read(int fd, char *buffer, int length)
     return __semi_call(SYS_READ, &args);
 }
 
+int semi_readc(void)
+{
+    return __semi_call(SYS_READC);
+}
+
 int semi_write(int fd, const char *buffer, int length)
 {
     struct {

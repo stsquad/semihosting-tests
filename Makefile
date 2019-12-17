@@ -106,6 +106,9 @@ systest-t32-bkpt.axf: $(microbit-systest-srcs)
 systest-a64.axf: $(systest-srcs)
 	$(A64GCC) -nostdlib -o $@ $^ $(A64LINKOPTS)
 
+systest-a64-with-console.axf: $(systest-srcs)
+	$(A64GCC) -D __WITH_CONSOLE__ -nostdlib -o $@ $^ $(A64LINKOPTS)
+
 run-usertest-a32: usertest-a32
 	$(QEMU_ARM) usertest-a32
 
@@ -137,6 +140,10 @@ run-systest-t32-bkpt: systest-t32-bkpt.axf
 	$(QEMU_SYSTEM_ARM) -M microbit --display none --semihosting -kernel $^
 
 run-systest-a64: systest-a64.axf
+	$(QEMU_SYSTEM_AARCH64) -M virt --display none --semihosting \
+		-cpu cortex-a57 -kernel $^
+
+run-systest-a64-with-console: systest-a64-with-console.axf
 	$(QEMU_SYSTEM_AARCH64) -M virt --display none --semihosting \
 		-cpu cortex-a57 -kernel $^
 

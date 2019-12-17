@@ -29,6 +29,7 @@
 #define SYS_WRITE0	4
 #define SYS_WRITE	5
 #define SYS_READ	6
+#define SYS_READC	7
 #define SYS_ISTTY	9
 #define SYS_SEEK	0x0A
 #define SYS_FLEN	0x0C
@@ -55,6 +56,7 @@ int semi_close(int fd);
 int semi_write0(char const *string);
 void semi_writec(char c);
 int semi_read(int fd, char *buffer, int length);
+int semi_readc(void);
 int semi_write(int fd, const char *buffer, int length);
 int semi_flen(int fd);
 int semi_istty(int fd);
