@@ -75,7 +75,7 @@ all: usertest-a32 usertest-a64 usertest-t32 \
 usertest-srcs = usertest.c semihosting.c semicall.S printf/printf.c
 
 systest-srcs = start.S string.c $(usertest-srcs)
-microbit-systest-srcs = microbit.lds start-microbit.S string.c $(usertest-srcs)
+microbit-systest-srcs = start-microbit.S string.c $(usertest-srcs)
 
 usertest-a32: $(usertest-srcs)
 	$(A32GCC) --static -o $@ $^
