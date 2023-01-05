@@ -61,10 +61,10 @@ ifdef TIMEOUT
 SYSTIMEOUT := timeout --foreground 10s
 endif
 
-QEMU_ARM = $(QEMU_BUILDDIR)/arm-linux-user/qemu-arm $(USRGDB)
-QEMU_AARCH64 = $(QEMU_BUILDDIR)/aarch64-linux-user/qemu-aarch64 $(USRGDB)
-QEMU_SYSTEM_ARM = $(SYSTIMEOUT) $(QEMU_BUILDDIR)/arm-softmmu/qemu-system-arm $(SYSGDB)
-QEMU_SYSTEM_AARCH64 = $(SYSTIMEOUT) $(QEMU_BUILDDIR)/aarch64-softmmu/qemu-system-aarch64 $(SYSGDB)
+QEMU_ARM = $(QEMU_BUILDDIR)/qemu-arm $(USRGDB)
+QEMU_AARCH64 = $(QEMU_BUILDDIR)/qemu-aarch64 $(USRGDB)
+QEMU_SYSTEM_ARM = $(SYSTIMEOUT) $(QEMU_BUILDDIR)/qemu-system-arm $(SYSGDB)
+QEMU_SYSTEM_AARCH64 = $(SYSTIMEOUT) $(QEMU_BUILDDIR)/qemu-system-aarch64 $(SYSGDB)
 
 all: usertest-a32 usertest-a64 usertest-t32 \
 	systest-a32.axf systest-t32.axf \
