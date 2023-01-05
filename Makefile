@@ -126,22 +126,22 @@ run-usertest-a64: usertest-a64
 	$(QEMU_AARCH64) usertest-a64
 
 run-systest-a32: systest-a32.axf
-	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
+	$(QEMU_SYSTEM_ARM) -M virt -net none --display none --semihosting -kernel $^
 
 run-systest-t32: systest-t32.axf
-	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
+	$(QEMU_SYSTEM_ARM) -M virt -net none --display none --semihosting -kernel $^
 
 run-systest-a32-hlt: systest-a32-hlt.axf
-	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
+	$(QEMU_SYSTEM_ARM) -M virt -net none --display none --semihosting -kernel $^
 
 run-systest-t32-hlt: systest-t32-hlt.axf
-	$(QEMU_SYSTEM_ARM) -M virt --display none --semihosting -kernel $^
+	$(QEMU_SYSTEM_ARM) -M virt -net none --display none --semihosting -kernel $^
 
 run-systest-t32-bkpt: systest-t32-bkpt.axf
 	$(QEMU_SYSTEM_ARM) -M microbit --display none --semihosting -kernel $^
 
 run-systest-a64: systest-a64.axf
-	$(QEMU_SYSTEM_AARCH64) -M virt --display none --semihosting \
+	$(QEMU_SYSTEM_AARCH64) -M virt -net none --display none --semihosting \
 		-cpu cortex-a57 -kernel $^
 
 run: run-usertest-a32 run-usertest-t32 run-usertest-a64 \
